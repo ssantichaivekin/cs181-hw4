@@ -12,3 +12,4 @@ Part 2.
 We see that each frame size is 0x20 confirming the suggestion that the frame pointer and
 the return address each occupies 0x10 memory. We see that there are 7 things listed, which would make sense
 since the displayed items are [recursive: num=0, recursive: num=1, : num=2, : num=3, : num=4, : num=5, main].
+Note that the details we for recursion(5). If we change that to recusrion(8), we will have 10 items.
