@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
     printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
 
+    stack_trace();
     recursive(5);
     return 0;
 }

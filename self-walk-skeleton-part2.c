@@ -1,18 +1,13 @@
 #include <stdio.h>
 #include <signal.h>
 
-int recursive(int val);
-void stack_trace(void);
+int recursive(int val, void* main_fp);
+void stack_trace(void* last_fp);
 
 int main(int argc, char *argv[])
 {
-    void* fp = __builtin_frame_address(0);
-    void* rp = __builtin_return_address(0);
-    printf("=== manual stack trace ===\n");
-    printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
-    printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
-
-    recursive(5);
+    void* main_fp = __builtin_frame_address(0);
+    recursive(8, main_fp);
     return 0;
 }
 
@@ -48,13 +43,23 @@ void *prior_frame(void *frame_pointer)
 	return (void *)*((long long *)frame_pointer);
 }
 
-void stack_trace(void)
+void stack_trace(void* last_fp)
 {
+    // 
     // x86_64
     //   %rbp is the frame pointer
     //   Don't forget to build with -fno-omit-frame-pointer!
     void* fp = __builtin_frame_address(1);
-    void* rp = __builtin_return_address(1); // don't observe this function, rather, observe the one that calls it
+    void* rp = __builtin_return_address(1);
+    // don't observe this function, rather, observe the one that calls it
+    while(last_fp != fp) {
+        printf("=== stack trace via function ===\n");
+        printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
+        printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
+
+        fp = prior_frame(fp);
+        rp = (void*)return_addr_from_frame(fp);
+    }
     printf("=== stack trace via function ===\n");
     printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
     printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
@@ -62,19 +67,12 @@ void stack_trace(void)
 }
 
 
-int recursive(int num)
+int recursive(int num, void* main_fp)
 {
-    void* fp = __builtin_frame_address(0);
-    void* rp = __builtin_return_address(0);
-    printf("=== manual stack trace  ===\n");
-    printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
-    printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
-
-    stack_trace();
-
     if (num == 0) {
+        stack_trace(main_fp);
 	return 0;
     }
 	
-    return 1 + recursive(num - 1);
+    return 1 + recursive(num - 1, main_fp);
 }

@@ -6,9 +6,8 @@ void stack_trace(void);
 
 int main(int argc, char *argv[])
 {
-    void* fp = __builtin_frame_address(0);
-    void* rp = __builtin_return_address(0);
-    printf("=== manual stack trace ===\n");
+    void* fp = __builtin_frame_address(1);
+    void* rp = __builtin_return_address(1); // don't observe this function, rather, observe the one that calls it
     printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
     printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
 
@@ -55,7 +54,6 @@ void stack_trace(void)
     //   Don't forget to build with -fno-omit-frame-pointer!
     void* fp = __builtin_frame_address(1);
     void* rp = __builtin_return_address(1); // don't observe this function, rather, observe the one that calls it
-    printf("=== stack trace via function ===\n");
     printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
     printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
     return;
@@ -64,12 +62,7 @@ void stack_trace(void)
 
 int recursive(int num)
 {
-    void* fp = __builtin_frame_address(0);
-    void* rp = __builtin_return_address(0);
-    printf("=== manual stack trace  ===\n");
-    printf("Frame Address (FP) is currently: %10llx\n", (long long)fp);
-    printf("Return Address (RP) is currently: %10llx\n", (long long)rp);
-
+    printf("=== manual stack trace ===\n");
     stack_trace();
 
     if (num == 0) {
@@ -77,4 +70,4 @@ int recursive(int num)
     }
 	
     return 1 + recursive(num - 1);
-}
+
